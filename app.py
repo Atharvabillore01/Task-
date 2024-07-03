@@ -1,8 +1,10 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import sqlite3
 from datetime import date
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+
 DATABASE = 'mydb.db'
 
 # Database setup
@@ -20,7 +22,8 @@ def create_db():
                  location TEXT,
                  skills TEXT,
                  experience INTEGER,
-                 bio TEXT)''')
+                 bio TEXT,
+                 password TEXT NOT NULL)''')  # Added password field
     conn.commit()
     conn.close()
 
@@ -76,19 +79,39 @@ def delete_profile(profile_id):
     
     return '', 204  # No content response for successful deletion
 
+@app.route('/api/login', methods=['POST'])
+def api_login():
+    data = request.get_json()
+    email = data.get('username')
+    password = data.get('password')
+    
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM users WHERE email = ? AND password = ?', (email, password))
+    user = c.fetchone()
+    conn.close()
+
+    if user:
+        session['user_id'] = user[0]  # Assuming user ID is at index 0
+        return jsonify({'valid': True})
+    else:
+        return jsonify({'valid': False, 'error': 'Invalid credentials'})
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        # Add logic to verify user credentials here
+        
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
-        c.execute('SELECT * FROM user_profile WHERE email = ? AND password = ?', (email, password))
+        c.execute('SELECT * FROM users WHERE email = ? AND password = ?', (email, password))
         user = c.fetchone()
         conn.close()
+
         if user:
-            return redirect(url_for('show_profiles'))
+            session['user_id'] = user[0]  # Assuming user ID is at index 0
+            return redirect(url_for('index'))  # Redirect to home page on successful login
         else:
             error = "Invalid credentials. Please try again."
             return render_template('login.html', error=error)
