@@ -3,67 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profiles</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Students List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+    </style>
 </head>
 <body>
-    <div class="d-flex" id="wrapper">
-        {% include 'components/sidebar.html' %}
-        <div id="page-content-wrapper">
-            {% include 'components/header.html' %}
-            <main class="container mt-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-10">
-                        <h1 class="text-center mb-4">User Profiles</h1>
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Gender</th>
-                                    <th>Date of Birth</th>
-                                    <th>Education</th>
-                                    <th>Salary</th>
-                                    <th>Location</th>
-                                    <th>Skills</th>
-                                    <th>Experience</th>
-                                    <th>Bio</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for profile in profiles %}
-                                    <tr>
-                                        <td>{{ profile[1] }}</td>
-                                        <td>{{ profile[2] }}</td>
-                                        <td>{{ profile[3] }}</td>
-                                        <td>{{ profile[4] }}</td>
-                                        <td>{{ profile[5] }}</td>
-                                        <td>{{ profile[6] }}</td>
-                                        <td>{{ profile[7] }}</td>
-                                        <td>{{ profile[8] }}</td>
-                                        <td>{{ profile[9] }}</td>
-                                        <td>{{ profile[10] }}</td>
-                                        <td>
-                                            <form action="{{ url_for('delete_profile', profile_id=profile[0]) }}" method="post" style="display:inline;">
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
-            {% include 'components/footer.html' %}
-        </div>
-    </div>
+    <h1>Users List</h1>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <form>
+        <label for="search">Search:</label>
+        <input type="text" id="search" name="search" onkeyup="filterUsers()" placeholder="Search by name, email, gender, location, or skills">
+    </form>
+
+    <table id="users-table">
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th>DOB</th>
+            <th>Education</th>
+            <th>Salary</th>
+            <th>Location</th>
+            <th>Skills</th>
+            <th>Experience</th>
+            <th>Bio</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>{{ user[4] }}</td>
+            <td>{{ user[5] }}</td>
+            <td>{{ user[6] }}</td>
+            <td>{{ user[7] }}</td>
+            <td>{{ user[8] }}</td>
+            <td>{{ user[9] }}</td>
+            <td>{{ user[10] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+        function filterUsers() {
+            var input, filter, table, tr, td, i, txtValue;
+            input = document.getElementById("search");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("users-table");
+            tr = table.getElementsByTagName("tr");
+
+            // Loop through all table rows, and hide those who don't match the search query
+            for (i = 1; i < tr.length; i++) {
+                tds = tr[i].getElementsByTagName("td");
+                var found = false;
+                for (var j = 0; j < tds.length; j++) {
+                    td = tds[j];
+                    if (td) {
+                        txtValue = td.textContent || td.innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break; // Exit loop if a match is found
+                        }
+                    }
+                }
+                if (found) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    </script>
 </body>
 </html>

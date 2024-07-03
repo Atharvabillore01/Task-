@@ -58,13 +58,8 @@ def submit_profile():
 
 @app.route('/profiles')
 def show_profiles():
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute('SELECT * FROM user_profile')
-    profiles = c.fetchall()
-    conn.close()
-    
-    return render_template('show_profiles.html', profiles=profiles)
+    # Placeholder for search functionality
+    return "profile"
 
 @app.route('/delete/<int:profile_id>', methods=['POST'])
 def delete_profile(profile_id):
@@ -100,8 +95,13 @@ def about_page():
 
 @app.route('/search')
 def search_page():
-    # Placeholder for search functionality
-    return "Search Page"
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM user_profile')
+    profiles = c.fetchall()
+    conn.close()
+    
+    return render_template('search.html', users=profiles)
 
 if __name__ == '__main__':
     create_db()

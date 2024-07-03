@@ -40,36 +40,48 @@
     </style>
 </head>
 <body>
-    <h1>Students List</h1>
+    <h1>Users List</h1>
 
     <form>
         <label for="search">Search:</label>
-        <input type="text" id="search" name="search" onkeyup="filterStudents()" placeholder="Search by name, age, gender, or location">
+        <input type="text" id="search" name="search" onkeyup="filterUsers()" placeholder="Search by name, email, gender, location, or skills">
     </form>
 
-    <table id="students-table">
+    <table id="users-table">
         <tr>
             <th>Name</th>
-            <th>Age</th>
+            <th>Email</th>
             <th>Gender</th>
+            <th>DOB</th>
+            <th>Education</th>
+            <th>Salary</th>
             <th>Location</th>
+            <th>Skills</th>
+            <th>Experience</th>
+            <th>Bio</th>
         </tr>
-        {% for student in students %}
+        {% for user in users %}
         <tr>
-            <td>{{ student[1] }}</td>
-            <td>{{ student[2] }}</td>
-            <td>{{ student[3] }}</td>
-            <td>{{ student[4] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[2] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>{{ user[4] }}</td>
+            <td>{{ user[5] }}</td>
+            <td>{{ user[6] }}</td>
+            <td>{{ user[7] }}</td>
+            <td>{{ user[8] }}</td>
+            <td>{{ user[9] }}</td>
+            <td>{{ user[10] }}</td>
         </tr>
         {% endfor %}
     </table>
 
     <script>
-        function filterStudents() {
+        function filterUsers() {
             var input, filter, table, tr, td, i, txtValue;
             input = document.getElementById("search");
             filter = input.value.toUpperCase();
-            table = document.getElementById("students-table");
+            table = document.getElementById("users-table");
             tr = table.getElementsByTagName("tr");
 
             // Loop through all table rows, and hide those who don't match the search query
@@ -80,7 +92,7 @@
                     td = tds[j];
                     if (td) {
                         txtValue = td.textContent || td.innerText;
-                        if (txtValue.toUpperCase().startsWith(filter)) {
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
                             found = true;
                             break; // Exit loop if a match is found
                         }
@@ -93,7 +105,6 @@
                 }
             }
         }
-
     </script>
 </body>
 </html>
