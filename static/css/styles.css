@@ -1,17 +1,22 @@
+/* General styles */
 body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    font-family: Arial, sans-serif;
 }
 
 main {
     flex: 1;
 }
+
 #footer {
     background-color: #f8f9fa;
     text-align: center;
     padding: 10px;
 }
+
+/* Sidebar styles */
 #sidebar-wrapper {
     min-height: 100vh;
     margin-left: -15rem;
@@ -27,6 +32,7 @@ main {
     width: 15rem;
 }
 
+/* Page content styles */
 #page-content-wrapper {
     min-width: 100vw;
 }
@@ -63,4 +69,80 @@ body.sb-sidenav-toggled #wrapper #sidebar-wrapper {
 
 .sidebar .dropdown-item {
     padding: .5rem 1rem .5rem 2rem;
+}
+
+/* Navbar custom styles */
+.navbar {
+    padding: 1rem;
+}
+
+.navbar .navbar-brand {
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    color: #343a40;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #007bff;
+}
+
+/* Footer styles */
+.custom-footer {
+    margin-top: 20px;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Main content styles */
+main.container {
+    padding: 2rem;
+}
+
+main.container .form-inline {
+    justify-content: center;
+}
+
+#users-list .card {
+    margin-bottom: 20px;
+}
+
+/* Card custom styles */
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.card-text {
+    margin-bottom: 0.5rem;
+}
+
+.user-card .card {
+    transition: transform 0.2s;
+}
+
+.user-card .card:hover {
+    transform: scale(1.02);
+}
+
+/* Search input styles */
+#search {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.5rem;
+    margin: 1rem 0;
+    font-size: 1rem;
 }
