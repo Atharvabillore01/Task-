@@ -4,14 +4,71 @@
 
 {% block content %}
 <main class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h1 class="text-center mb-4">Edit Profile</h1>
-            <form action="{{ url_for('save_profile') }}" method="POST">
-                <!-- Include form fields for editing profile details -->
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <h1 class="text-center mb-4">Edit User Profile</h1>
+
+      {% if user_profile %}
+        <form method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">  <div class="card">
+            <div class="card-body">
+                <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" value="{{ user_profile[1] }}">
+              </div>
+              <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" name="name" value="{{ user_profile[3] }}">
+              </div>
+              <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" name="email" value="{{ user_profile[4] }}">  </div>
+              <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select class="form-control" id="gender" name="gender">
+                  <option value="Male" {% if user_profile[5] == "Male" %}selected{% endif %}>Male</option>
+                  <option value="Female" {% if user_profile[5] == "Female" %}selected{% endif %}>Female</option>
+                  <option value="Other" {% if user_profile[5] == "Other" %}selected{% endif %}>Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="dob">Date of Birth:</label>
+                <input type="date" class="form-control" id="dob" name="dob" value="{{ user_profile[6] }}">
+              </div>
+              <div class="form-group">
+                <label for="education">Education:</label>
+                <input type="text" class="form-control" id="education" name="education" value="{{ user_profile[7] }}">
+              </div>
+              <div class="form-group">
+                <label for="salary">Salary:</label>
+                <input type="number" class="form-control" id="salary" name="salary" value="{{ user_profile[8] }}">
+              </div>
+              <div class="form-group">
+                <label for="location">Location:</label>
+                <input type="text" class="form-control" id="location" name="location" value="{{ user_profile[9] }}">
+              </div>
+              <div class="form-group">
+                <label for="skills">Skills (comma separated):</label>
+                <textarea class="form-control" id="skills" name="skills">{{ user_profile[10] }}</textarea>
+              </div>
+              <div class="form-group">
+                <label for="experience">Experience:</label>
+                <textarea class="form-control" id="experience" name="experience">{{ user_profile[11] }}</textarea>
+              </div>
+              <div class="form-group">
+                <label for="bio">Bio:</label>
+                <textarea class="form-control" id="bio" name="bio">{{ user_profile[12] }}</textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </div>
+        </form>
+      {% else %}
+        <div class="alert alert-danger text-center" role="alert">
+          You need to be logged in to edit your profile. Please <a href="{{ url_for('login') }}">log in</a>.
         </div>
+      {% endif %}
     </div>
+  </div>
 </main>
 {% endblock %}

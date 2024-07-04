@@ -8,16 +8,40 @@ $(document).ready(function() {
     $("#sidebar").load("{{ url_for('static', filename='components/sidebar.html') }}", function() {
         // Initialize dropdowns
         $('.dropdown-toggle').dropdown();
+
+        // Handle dropdown close on click outside
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.dropdown-toggle').length) {
+                $('.dropdown-menu').removeClass('show');
+            }
+        });
     });
 
     // Sidebar toggle
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("sb-sidenav-toggled");
+    $(document).ready(function() {
+        // Handle click event on dropdown toggles
+        $('.dropdown-toggle').click(function(e) {
+            e.preventDefault(); // Prevent default action of anchor tag
+    
+            var $parentDropdown = $(this).parent('.dropdown'); // Get parent dropdown element
+            var $dropdownMenu = $parentDropdown.find('.dropdown-menu'); // Get dropdown menu
+    
+            // Toggle the dropdown menu visibility
+            $dropdownMenu.toggleClass('show');
+    
+            // Close other dropdowns
+            $('.dropdown-menu').not($dropdownMenu).removeClass('show');
+        });
+    
+        // Close dropdowns when clicking outside
+        $(document).click(function(e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown-menu').removeClass('show');
+            }
+        });
     });
-});
 
-document.addEventListener("DOMContentLoaded", function() {
+    // Set max date for date of birth input
     var today = new Date().toISOString().split('T')[0];
     var dobInput = document.getElementById('dob');
     if (dobInput) {
@@ -62,6 +86,3 @@ function filterUsers() {
         }
     }
 }
-
-
-
