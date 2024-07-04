@@ -169,3 +169,8 @@ main.container .form-inline {
 #step2 {
     display: none;
 }
+
+/* Footer*/
+#footer {
+ margin-top: 40px; 
+}

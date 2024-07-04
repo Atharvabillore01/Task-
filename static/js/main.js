@@ -69,23 +69,26 @@ function deleteProfile(profileId) {
 }
 
 function filterUsers() {
-    var input, filter, cards, cardContainer, title, i;
+    var input, filter, cards, cardContainer, title, txtValue, i;
     input = document.getElementById("search");
     filter = input.value.toUpperCase();
     cardContainer = document.getElementById("users-list");
     cards = cardContainer.getElementsByClassName("user-card");
 
-    // Loop through all cards, and hide those who don't match the search query
     for (i = 0; i < cards.length; i++) {
         title = cards[i].getElementsByClassName("card-title")[0];
         txtValue = title.textContent || title.innerText;
-        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        
+        if (txtValue.toUpperCase().startsWith(filter)) {
             cards[i].style.display = "";
         } else {
             cards[i].style.display = "none";
         }
     }
 }
+
+
+
 $(document).ready(function() {
     // Show/hide steps based on button clicks
     $('.next-btn').click(function() {
