@@ -15,7 +15,7 @@ def create_db():
                  username TEXT UNIQUE NOT NULL,
                  password TEXT NOT NULL,
                  name TEXT,
-                 email TEXT UNIQUE NOT NULL,
+                 email TEXT,
                  gender TEXT,
                  dob TEXT,
                  education TEXT,
@@ -27,18 +27,6 @@ def create_db():
     conn.commit()
     conn.close()
 
-# Function to fetch current user details from database based on session
-def current_user():
-    if 'username' in session:
-        username = session['username']
-        conn = sqlite3.connect(DATABASE)
-        c = conn.cursor()
-        c.execute('SELECT * FROM user_profile WHERE username = ?', (username,))
-        user_profile = c.fetchone()
-        conn.close()
-        return user_profile
-    return None
-
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -49,7 +37,6 @@ def signup():
         username = request.form['username']
         password = request.form['password']
         confirm_password = request.form['confirm_password']
-        email = request.form['email']
 
         if password != confirm_password:
             flash("Passwords do not match.", 'error')
@@ -58,13 +45,12 @@ def signup():
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
         try:
-            c.execute('''INSERT INTO user_profile (username, password, email) VALUES (?, ?, ?)''', (username, password, email))
+            c.execute('''INSERT INTO user_profile (username, password) VALUES (?, ?)''', (username, password))
             conn.commit()
             flash("Account created successfully. Please provide additional details.", 'success')
-            session['username'] = username
             return redirect(url_for('additional_details'))
         except sqlite3.IntegrityError:
-            flash("Username or email already exists. Please choose another.", 'error')
+            flash("Username already exists. Please choose another username.", 'error')
         finally:
             conn.close()
         
@@ -72,15 +58,14 @@ def signup():
 
 @app.route('/additional_details', methods=['GET', 'POST'])
 def additional_details():
-    if 'username' not in session:
+    if 'email' not in session:
         flash("Please sign up or log in first.", 'error')
         return redirect(url_for('signup'))
     
     max_date = date.today().isoformat()
     if request.method == 'POST':
-        username = session['username']
+        email = session['email']
         name = request.form['name']
-        email = request.form['email']
         gender = request.form['gender']
         dob = request.form['dob']
         education = request.form['education']
@@ -93,9 +78,9 @@ def additional_details():
         conn = sqlite3.connect(DATABASE)
         c = conn.cursor()
         try:
-            c.execute('''UPDATE user_profile SET name = ?, email = ?, gender = ?, dob = ?, education = ?, salary = ?, location = ?, skills = ?, experience = ?, bio = ? 
-                         WHERE username = ?''', 
-                         (name, email, gender, dob, education, salary, location, skills, experience, bio, username))
+            c.execute('''UPDATE user_profile SET name = ?, gender = ?, dob = ?, education = ?, salary = ?, location = ?, skills = ?, experience = ?, bio = ? 
+                         WHERE email = ?''', 
+                         (name, gender, dob, education, salary, location, skills, experience, bio, email))
             conn.commit()
             flash("Profile updated successfully.", 'success')
         except sqlite3.Error as e:
@@ -109,10 +94,16 @@ def additional_details():
 
 @app.route('/profile')
 def profile():
-    user_profile = current_user()
-    if not user_profile:
+    if 'email' not in session:
         flash("Please sign up or log in first.", 'error')
         return redirect(url_for('signup'))
+
+    email = session['email']
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM user_profile WHERE email = ?', (email,))
+    user_profile = c.fetchone()
+    conn.close()
 
     return render_template('profiles.html', user_profile=user_profile)
 
@@ -129,7 +120,7 @@ def login():
         conn.close()
 
         if user:
-            session['username'] = user[1]  # Set session username to the logged-in user's username
+            session['email'] = email
             flash("Login successful.", 'success')
             return redirect(url_for('profile'))
         else:
@@ -139,7 +130,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.pop('email', None)
     flash("You have been logged out.", 'info')
     return redirect(url_for('index'))
 
@@ -157,9 +148,56 @@ def search_page():
 
     return render_template('search.html', users=profiles)
 
-@app.route('/edit')
+def current_user():
+    if 'email' in session:
+        email = session['email']
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        c.execute('SELECT * FROM user_profile WHERE email = ?', (email,))
+        user_profile = c.fetchone()
+        conn.close()
+        return user_profile
+    return None
+
+@app.route('/edit', methods=['GET', 'POST'])
 def edit_profile():
-    return render_template('edit_profile.html')
+    """
+    This route handles editing user profiles.
+    """
+    if 'email' not in session:
+        flash("Please sign up or log in first.", 'error')
+        return redirect(url_for('signup'))
+
+    user_profile = current_user()
+
+    if request.method == 'POST':
+        username = request.form['username']
+        name = request.form['name']
+        email = request.form['email']
+        gender = request.form['gender']
+        dob = request.form['dob']
+        education = request.form['education']
+        salary = request.form['salary']
+        location = request.form['location']
+        skills = request.form['skills']
+        experience = request.form['experience']
+        bio = request.form['bio']
+
+        # Update database with prepared statement to prevent SQL injection
+        conn = sqlite3.connect(DATABASE)
+        c = conn.cursor()
+        try:
+            c.execute('''UPDATE user_profile SET username = ?, name = ?, email = ?, gender = ?, dob = ?, education = ?, salary = ?, location = ?, skills = ?, experience = ?, bio = ? 
+                         WHERE email = ?''', (username, name, email, gender, dob, education, salary, location, skills, experience, bio, user_profile[4]))
+            conn.commit()
+            flash("Profile updated successfully.", 'success')
+        except sqlite3.Error as e:
+            flash(f"Error updating profile: {e}", 'error')
+        finally:
+            conn.close()
+        return redirect(url_for('profile'))
+
+    return render_template('edit_profile.html', user_profile=user_profile)
 
 if __name__ == '__main__':
     create_db()
