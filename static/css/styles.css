@@ -165,3 +165,7 @@ main.container .form-inline {
         margin-left: -15rem;
     }
 }
+
+#step2 {
+    display: none;
+}

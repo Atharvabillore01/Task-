@@ -86,3 +86,21 @@ function filterUsers() {
         }
     }
 }
+$(document).ready(function() {
+    // Show/hide steps based on button clicks
+    $('.next-btn').click(function() {
+        $('#step1').hide();
+        $('#step2').show();
+    });
+
+    // Validate form inputs (example)
+    $('#signupForm').submit(function(event) {
+        var password = $('#password').val();
+        var confirm_password = $('#confirm_password').val();
+
+        if (password !== confirm_password) {
+            alert("Passwords do not match.");
+            event.preventDefault(); // Prevent form submission
+        }
+    });
+});

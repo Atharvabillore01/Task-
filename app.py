@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
 from datetime import date
-#current branch
+
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'  # Change this to a secure key for session management
 DATABASE = 'mydb.db'
@@ -34,78 +34,64 @@ def index():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
+        step = request.form.get('step')
+        if step == '1':
+            email = request.form['email']
+            password = request.form['password']
+            confirm_password = request.form['confirm_password']
+            if password != confirm_password:
+                flash("Passwords do not match.", 'error')
+                return render_template('signup.html', step=1)
 
-        if password != confirm_password:
-            flash("Passwords do not match.", 'error')
-            return render_template('signup.html')
+            session['signup_data'] = {
+                'email': email,
+                'password': password
+            }
+            return render_template('signup.html', step=2)
+        elif step == '2':
+            signup_data = session.get('signup_data', {})
+            username = request.form['username']
+            name = request.form['name']
+            gender = request.form['gender']
+            dob = request.form['dob']
+            education = request.form['education']
+            salary = request.form['salary']
+            location = request.form['location']
+            skills = request.form['skills']
+            experience = request.form['experience']
+            bio = request.form['bio']
 
-        conn = sqlite3.connect(DATABASE)
-        c = conn.cursor()
-        try:
-            c.execute('''INSERT INTO user_profile (username, password) VALUES (?, ?)''', (username, password))
-            conn.commit()
-            flash("Account created successfully. Please provide additional details.", 'success')
-            return redirect(url_for('additional_details'))
-        except sqlite3.IntegrityError:
-            flash("Username already exists. Please choose another username.", 'error')
-        finally:
-            conn.close()
-        
-    return render_template('signup.html')
+            signup_data.update({
+                'username': username,
+                'name': name,
+                'gender': gender,
+                'dob': dob,
+                'education': education,
+                'salary': salary,
+                'location': location,
+                'skills': skills,
+                'experience': experience,
+                'bio': bio
+            })
 
-@app.route('/additional_details', methods=['GET', 'POST'])
-def additional_details():
-    if 'email' not in session:
-        flash("Please sign up or log in first.", 'error')
-        return redirect(url_for('signup'))
-    
-    max_date = date.today().isoformat()
-    if request.method == 'POST':
-        email = session['email']
-        name = request.form['name']
-        gender = request.form['gender']
-        dob = request.form['dob']
-        education = request.form['education']
-        salary = request.form['salary']
-        location = request.form['location']
-        skills = request.form['skills']
-        experience = request.form['experience']
-        bio = request.form['bio']
-
-        conn = sqlite3.connect(DATABASE)
-        c = conn.cursor()
-        try:
-            c.execute('''UPDATE user_profile SET name = ?, gender = ?, dob = ?, education = ?, salary = ?, location = ?, skills = ?, experience = ?, bio = ? 
-                         WHERE email = ?''', 
-                         (name, gender, dob, education, salary, location, skills, experience, bio, email))
-            conn.commit()
-            flash("Profile updated successfully.", 'success')
-        except sqlite3.Error as e:
-            flash(f"Error updating profile: {e}", 'error')
-        finally:
-            conn.close()
-            
-        return redirect(url_for('profile'))
-    
-    return render_template('additional_details.html', max_date=max_date)
-
-@app.route('/profile')
-def profile():
-    if 'email' not in session:
-        flash("Please sign up or log in first.", 'error')
-        return redirect(url_for('signup'))
-
-    email = session['email']
-    conn = sqlite3.connect(DATABASE)
-    c = conn.cursor()
-    c.execute('SELECT * FROM user_profile WHERE email = ?', (email,))
-    user_profile = c.fetchone()
-    conn.close()
-
-    return render_template('profiles.html', user_profile=user_profile)
+            # Save data to the database
+            conn = sqlite3.connect(DATABASE)
+            c = conn.cursor()
+            try:
+                c.execute('''INSERT INTO user_profile (username, password, email, name, gender, dob, education, salary, location, skills, experience, bio)
+                             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', 
+                          (signup_data['username'], signup_data['password'], signup_data['email'], signup_data['name'], 
+                           signup_data['gender'], signup_data['dob'], signup_data['education'], signup_data['salary'], 
+                           signup_data['location'], signup_data['skills'], signup_data['experience'], signup_data['bio']))
+                conn.commit()
+                flash("Account created successfully.", 'success')
+                session.pop('signup_data', None)
+                return redirect(url_for('login'))
+            except sqlite3.IntegrityError:
+                flash("Username already exists. Please choose another username.", 'error')
+            finally:
+                conn.close()
+    return render_template('signup.html', step=1)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -127,6 +113,21 @@ def login():
             flash("Invalid credentials. Please try again.", 'error')
 
     return render_template('login.html')
+
+@app.route('/profile')
+def profile():
+    if 'email' not in session:
+        flash("Please log in first.", 'error')
+        return redirect(url_for('login'))
+
+    email = session['email']
+    conn = sqlite3.connect(DATABASE)
+    c = conn.cursor()
+    c.execute('SELECT * FROM user_profile WHERE email = ?', (email,))
+    user_profile = c.fetchone()
+    conn.close()
+
+    return render_template('profiles.html', user_profile=user_profile)
 
 @app.route('/logout')
 def logout():

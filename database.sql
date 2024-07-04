@@ -20,3 +20,6 @@ VALUES
 ('jane_smith', 'securepassword', 'Jane Smith', 'jane.smith@example.com', 'Female', '1985-09-28', 'Master of Business Administration', 75000, 'San Francisco', 'Project Management, Leadership', 8, 'Experienced manager with a proven track record in leading teams.'),
 ('alex_jones', 'password123', 'Alex Jones', 'alex.jones@example.com', 'Male', '1995-03-20', 'Bachelor of Arts', 45000, 'Chicago', 'Graphic Design, Adobe Suite', 3, 'Creative designer specializing in digital and print media.'),
 ('emily_wilson', 'emily_password', 'Emily Wilson', 'emily.wilson@example.com', 'Female', '1992-11-10', 'Bachelor of Engineering', 70000, 'Los Angeles', 'JavaScript, React, Node.js', 6, 'Full-stack developer passionate about creating responsive web applications.');
+
+DELETE FROM user_profile
+WHERE id BETWEEN 5 AND 8;
