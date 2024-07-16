@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, jsonify, render_template, request, redirect, url_for, session, flash
 import sqlite3
 from datetime import date
 
@@ -31,11 +31,13 @@ def create_db():
 def index():
     return render_template('index.html')
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
-        step = request.form.get('step')
-        if step == '1':
+        step = int(request.form.get('step', 1))
+
+        if step == 1:
             email = request.form['email']
             password = request.form['password']
             confirm_password = request.form['confirm_password']
@@ -48,26 +50,63 @@ def signup():
                 'password': password
             }
             return render_template('signup.html', step=2)
-        elif step == '2':
+
+        elif step == 2:
             signup_data = session.get('signup_data', {})
             username = request.form['username']
             name = request.form['name']
+
+            signup_data.update({
+                'username': username,
+                'name': name
+            })
+
+            session['signup_data'] = signup_data
+            return render_template('signup.html', step=3)
+
+        elif step == 3:
+            signup_data = session.get('signup_data', {})
             gender = request.form['gender']
+
+            signup_data.update({
+                'gender': gender
+            })
+
+            session['signup_data'] = signup_data
+            return render_template('signup.html', step=4)
+
+        elif step == 4:
+            signup_data = session.get('signup_data', {})
             dob = request.form['dob']
+
+            signup_data.update({
+                'dob': dob
+            })
+
+            session['signup_data'] = signup_data
+            return render_template('signup.html', step=5)
+
+        elif step == 5:
+            signup_data = session.get('signup_data', {})
             education = request.form['education']
             salary = request.form['salary']
+
+            signup_data.update({
+                'education': education,
+                'salary': salary
+            })
+
+            session['signup_data'] = signup_data
+            return render_template('signup.html', step=6)
+
+        elif step == 6:
+            signup_data = session.get('signup_data', {})
             location = request.form['location']
             skills = request.form['skills']
             experience = request.form['experience']
             bio = request.form['bio']
 
             signup_data.update({
-                'username': username,
-                'name': name,
-                'gender': gender,
-                'dob': dob,
-                'education': education,
-                'salary': salary,
                 'location': location,
                 'skills': skills,
                 'experience': experience,
@@ -91,6 +130,7 @@ def signup():
                 flash("Username already exists. Please choose another username.", 'error')
             finally:
                 conn.close()
+
     return render_template('signup.html', step=1)
 
 @app.route('/login', methods=['GET', 'POST'])

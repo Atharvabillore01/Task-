@@ -87,7 +87,34 @@ function filterUsers() {
     }
 }
 
+function filterStudents() {
+    var input, filter, table, tr, td, i, txtValue;
+    input = document.getElementById("search");
+    filter = input.value.toUpperCase();
+    table = document.getElementById("students-table");
+    tr = table.getElementsByTagName("tr");
 
+    // Loop through all table rows, and hide those who don't match the search query
+    for (i = 1; i < tr.length; i++) {
+        tds = tr[i].getElementsByTagName("td");
+        var found = false;
+        for (var j = 0; j < tds.length; j++) {
+            td = tds[j];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().startsWith(filter)) {
+                    found = true;
+                    break; // Exit loop if a match is found
+                }
+            }
+        }
+        if (found) {
+            tr[i].style.display = "";
+        } else {
+            tr[i].style.display = "none";
+        }
+    }
+}
 
 $(document).ready(function() {
     // Show/hide steps based on button clicks
@@ -106,4 +133,60 @@ $(document).ready(function() {
             event.preventDefault(); // Prevent form submission
         }
     });
+});
+
+// signup
+
+$(document).ready(function() {
+    let currentStep = 1;
+    const totalSteps = 6;
+
+    function updateStep(step) {
+        $('.signup-step').removeClass('active animate__animated animate__fadeIn');
+        $(`#step-${step}`).addClass('active animate__animated animate__fadeIn');
+        $('#step-counter').text(step);
+        updateButtons();
+        updateProgressBar();
+    }
+
+    function updateButtons() {
+        $('#prev-btn').prop('disabled', currentStep === 1);
+        if (currentStep === totalSteps) {
+            $('#next-btn').addClass('d-none');
+            $('#submit-btn').removeClass('d-none');
+        } else {
+            $('#next-btn').removeClass('d-none');
+            $('#submit-btn').addClass('d-none');
+        }
+    }
+
+    function updateProgressBar() {
+        const progress = (currentStep / totalSteps) * 100;
+        $('.progress-bar').css('width', `${progress}%`).attr('aria-valuenow', progress);
+    }
+
+    $('#next-btn').click(function() {
+        if (currentStep < totalSteps) {
+            currentStep++;
+            updateStep(currentStep);
+        }
+    });
+
+    $('#prev-btn').click(function() {
+        if (currentStep > 1) {
+            currentStep--;
+            updateStep(currentStep);
+        }
+    });
+
+
+    $('#signup-form').submit(function(e) {
+        e.preventDefault(); // Prevent default form submission
+        if (validateStep(currentStep)) {
+            // AJAX submission or any other processing here
+            alert('Form submitted successfully!');
+            // You can redirect or perform any necessary actions after successful submission
+        }
+    });
+    updateStep(currentStep);
 });
